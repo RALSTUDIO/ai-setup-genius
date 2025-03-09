@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,29 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				purple: {
+					100: '#E5DEFF',
+					200: '#D6BCFA',
+					300: '#9b87f5',
+					400: '#7E69AB',
+					500: '#6E59A5'
+				},
+				neutral: {
+					100: '#F1F0FB',
+					200: '#eee',
+					300: '#f3f3f3',
+					400: '#C8C8C9',
+					500: '#8E9196',
+					900: '#1A1F2C'
+				},
+				soft: {
+					green: '#F2FCE2',
+					yellow: '#FEF7CD',
+					orange: '#FEC6A1',
+					pink: '#FFDEE2',
+					peach: '#FDE1D3',
+					blue: '#D3E4FD'
 				}
 			},
 			borderRadius: {
@@ -84,11 +108,54 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					from: {
+						opacity: '0'
+					},
+					to: {
+						opacity: '1'
+					}
+				},
+				'fade-out': {
+					from: {
+						opacity: '1'
+					},
+					to: {
+						opacity: '0'
+					}
+				},
+				'slide-up': {
+					from: {
+						transform: 'translateY(20px)',
+						opacity: '0'
+					},
+					to: {
+						transform: 'translateY(0)',
+						opacity: '1'
+					}
+				},
+				'bg-pulse': {
+					'0%, 100%': { 
+						'background-position': '0% 50%' 
+					},
+					'50%': { 
+						'background-position': '100% 50%' 
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.5s ease-out',
+				'fade-out': 'fade-out 0.5s ease-out',
+				'slide-up': 'slide-up 0.6s ease-out',
+				'bg-pulse': 'bg-pulse 8s ease infinite'
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'hero-pattern': 'linear-gradient(to right bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8)), url("/bg-pattern.svg")',
+				'cta-pattern': 'linear-gradient(135deg, #9b87f5 0%, #6E59A5 100%)'
 			}
 		}
 	},
