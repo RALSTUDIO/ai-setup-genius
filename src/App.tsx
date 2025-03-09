@@ -9,6 +9,9 @@ import NotFound from "./pages/NotFound";
 import ServicesPage from "./pages/ServicesPage";
 import About from "./pages/About";
 import QuizPage from "./pages/QuizPage";
+import AISolutionsPage from "./pages/AISolutionsPage";
+import PricingPage from "./pages/PricingPage";
+import SelfGuidedSetupPage from "./pages/SelfGuidedSetupPage";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/self-guided-setup" element={<SelfGuidedSetupPage />} />
+          <Route path="/ai-solutions" element={<AISolutionsPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/start-quiz" element={<QuizPage />} />
           <Route path="/quiz" element={<QuizPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
