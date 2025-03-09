@@ -1,43 +1,104 @@
 
-import { QuizResult } from './quizData';
+import React from 'react';
+import { CheckCircle2 } from 'lucide-react';
 
-interface QuizResultCardProps {
-  result: QuizResult;
-  gmType: 'saudi' | 'nonSaudi';
+interface ResultData {
+  type: string;
+  description: string;
+  capitalRequirement: string;
+  governmentFees: {
+    saudiGM: string;
+    nonSaudiGM: string;
+  };
+  timeline: {
+    saudiGM: string;
+    nonSaudiGM: string;
+  };
 }
 
-const QuizResultCard = ({ result, gmType }: QuizResultCardProps) => {
+interface QuizResultCardProps {
+  result: ResultData;
+}
+
+const QuizResultCard: React.FC<QuizResultCardProps> = ({ result }) => {
   return (
-    <div className="bg-white border border-neutral-200 rounded-xl p-6 shadow-sm">
-      <div className="flex items-center space-x-2 mb-4">
-        <div className="bg-purple-100 text-purple-500 p-1 rounded-full">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
+    <div className="bg-white p-8 rounded-xl border border-neutral-200 shadow-md">
+      <div className="flex items-center mb-6">
+        <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+          <CheckCircle2 size={24} className="text-purple-500" />
         </div>
-        <h3 className="text-xl font-bold">{result.title}</h3>
+        <h3 className="text-2xl font-bold">{result.type}</h3>
       </div>
       
-      <p className="text-neutral-600 mb-4">{result.description}</p>
+      <div className="mb-6">
+        <p className="text-lg text-neutral-700">{result.description}</p>
+      </div>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
-          <h4 className="font-medium text-neutral-800">Capital Requirement</h4>
-          <p className="text-neutral-600">{result.capitalRequirement}</p>
+          <h4 className="text-lg font-semibold mb-2">Capital Requirement</h4>
+          <p className="text-neutral-700">{result.capitalRequirement}</p>
         </div>
         
         <div>
-          <h4 className="font-medium text-neutral-800">Government Fees</h4>
-          <p className="text-neutral-600">
-            {gmType === 'saudi' ? result.governmentFees.saudiGM : result.governmentFees.nonSaudiGM}
-          </p>
+          <h4 className="text-lg font-semibold mb-2">Government Fees</h4>
+          <div className="space-y-2">
+            <div className="flex items-start">
+              <span className="font-medium mr-2">Saudi GM:</span>
+              <span className="text-neutral-700">{result.governmentFees.saudiGM}</span>
+            </div>
+            <div className="flex items-start">
+              <span className="font-medium mr-2">Non-Saudi GM:</span>
+              <span className="text-neutral-700">{result.governmentFees.nonSaudiGM}</span>
+            </div>
+          </div>
         </div>
         
         <div>
-          <h4 className="font-medium text-neutral-800">Estimated Timeline</h4>
-          <p className="text-neutral-600">
-            {gmType === 'saudi' ? result.timeline.saudiGM : result.timeline.nonSaudiGM}
-          </p>
+          <h4 className="text-lg font-semibold mb-2">Timeline</h4>
+          <div className="space-y-2">
+            <div className="flex items-start">
+              <span className="font-medium mr-2">Saudi GM:</span>
+              <span className="text-neutral-700">{result.timeline.saudiGM}</span>
+            </div>
+            <div className="flex items-start">
+              <span className="font-medium mr-2">Non-Saudi GM:</span>
+              <span className="text-neutral-700">{result.timeline.nonSaudiGM}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="mt-8 pt-6 border-t border-neutral-200">
+        <h4 className="text-lg font-semibold mb-4">Summary of Costs & Timelines</h4>
+        <div className="bg-neutral-50 p-4 rounded-lg">
+          <table className="w-full text-sm">
+            <thead className="text-left">
+              <tr>
+                <th className="pb-2">Scenario</th>
+                <th className="pb-2">Fixed Fees</th>
+                <th className="pb-2">GM Fees (if Non-Saudi)</th>
+                <th className="pb-2">Total Cost</th>
+                <th className="pb-2">Timeline</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="py-2">Saudi GM</td>
+                <td className="py-2">✅ SAR 17,065</td>
+                <td className="py-2">❌ Not Applicable</td>
+                <td className="py-2 font-medium">SAR 17,065</td>
+                <td className="py-2">10 days – 4 weeks</td>
+              </tr>
+              <tr>
+                <td className="py-2">Non-Saudi GM</td>
+                <td className="py-2">✅ SAR 17,065</td>
+                <td className="py-2">✅ SAR 12,490</td>
+                <td className="py-2 font-medium">SAR 29,555</td>
+                <td className="py-2">1 – 2 months</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

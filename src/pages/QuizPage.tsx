@@ -3,246 +3,231 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import QuizSection from '@/components/quiz/QuizSection';
 import QuizResultCard from '@/components/quiz/QuizResultCard';
-import { 
-  quizSections, 
-  QuizAnswer, 
-  determineResult, 
-  quizResults, 
-  ResultType
-} from '@/components/quiz/quizData';
+import { quizData } from '@/components/quiz/quizData';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 const QuizPage = () => {
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [answers, setAnswers] = useState<QuizAnswer[]>([]);
-  const [resultReady, setResultReady] = useState(false);
-  const [resultType, setResultType] = useState<ResultType | null>(null);
-  const [gmType, setGmType] = useState<'saudi' | 'nonSaudi'>('saudi');
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
+  const [showResults, setShowResults] = useState(false);
   
-  const totalSteps = quizSections.length;
-  const isFirstStep = currentStepIndex === 0;
-  const isLastStep = currentStepIndex === totalSteps - 1;
-  const currentSection = quizSections[currentStepIndex];
+  const handleAnswerSelect = (questionId: string, answerId: string) => {
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [questionId]: answerId,
+    }));
+  };
   
   const handleNext = () => {
-    if (isLastStep) {
-      // Calculate results
-      const result = determineResult(answers);
-      setResultType(result);
-      setResultReady(true);
-      
-      // Check if GM will be non-Saudi or Saudi
-      const gmAnswer = answers.find(a => a.questionId === 'foreign-gm');
-      if (gmAnswer && gmAnswer.answerId === 'yes-foreign-gm') {
-        setGmType('nonSaudi');
-      } else {
-        setGmType('saudi');
-      }
+    if (currentSectionIndex < quizData.length - 1) {
+      setCurrentSectionIndex(currentSectionIndex + 1);
+      window.scrollTo(0, 0);
     } else {
-      setCurrentStepIndex(currentStepIndex + 1);
+      setShowResults(true);
+      window.scrollTo(0, 0);
     }
   };
   
   const handlePrevious = () => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex(currentStepIndex - 1);
+    if (currentSectionIndex > 0) {
+      setCurrentSectionIndex(currentSectionIndex - 1);
+      window.scrollTo(0, 0);
     }
   };
   
-  const handleAnswerSelect = (questionId: string, answerId: string) => {
-    const newAnswers = [...answers];
-    const existingAnswerIndex = newAnswers.findIndex(a => a.questionId === questionId);
+  const isCurrentSectionComplete = () => {
+    const currentSection = quizData[currentSectionIndex];
+    return currentSection.questions.every(q => selectedAnswers[q.id]);
+  };
+  
+  const calculateResult = () => {
+    // Count answers by type
+    const answerCounts: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
     
-    if (existingAnswerIndex >= 0) {
-      newAnswers[existingAnswerIndex] = { questionId, answerId };
-    } else {
-      newAnswers.push({ questionId, answerId });
+    Object.values(selectedAnswers).forEach(answerId => {
+      if (answerId.startsWith('A')) answerCounts.A++;
+      if (answerId.startsWith('B')) answerCounts.B++;
+      if (answerId.startsWith('C')) answerCounts.C++;
+      if (answerId.startsWith('D')) answerCounts.D++;
+    });
+    
+    // Find the most selected answer type
+    let mostSelectedType = 'B'; // Default to LLC
+    let maxCount = 0;
+    
+    Object.entries(answerCounts).forEach(([type, count]) => {
+      if (count > maxCount) {
+        mostSelectedType = type;
+        maxCount = count;
+      }
+    });
+    
+    return mostSelectedType;
+  };
+  
+  const getRecommendedEntityType = () => {
+    const resultType = calculateResult();
+    
+    switch (resultType) {
+      case 'A':
+        return {
+          type: 'Joint Stock Company (JSC)',
+          description: 'Best for large businesses seeking public investment.',
+          capitalRequirement: 'Minimum SAR 500,000, with 25% paid at incorporation.',
+          governmentFees: {
+            saudiGM: 'SAR 17,065',
+            nonSaudiGM: 'SAR 29,555 (includes SAR 12,490 for work permit)',
+          },
+          timeline: {
+            saudiGM: '10 days – 4 weeks',
+            nonSaudiGM: '1 – 2 months',
+          }
+        };
+      case 'B':
+        return {
+          type: 'Limited Liability Company (LLC)',
+          description: 'Best for most foreign investors, allowing 100% ownership with a MISA license.',
+          capitalRequirement: 'No fixed minimum (varies by industry).',
+          governmentFees: {
+            saudiGM: 'SAR 17,065',
+            nonSaudiGM: 'SAR 29,555',
+          },
+          timeline: {
+            saudiGM: '10 days – 4 weeks',
+            nonSaudiGM: '1 – 2 months',
+          }
+        };
+      case 'C':
+        return {
+          type: 'Single-Owner LLC (Individual LLC)',
+          description: 'Best for a single foreign investor wanting a structured entity.',
+          capitalRequirement: 'Minimum SAR 100,000.',
+          governmentFees: {
+            saudiGM: 'SAR 17,065',
+            nonSaudiGM: 'SAR 29,555',
+          },
+          timeline: {
+            saudiGM: '10 days – 4 weeks',
+            nonSaudiGM: '1 – 2 months',
+          }
+        };
+      case 'D':
+        return {
+          type: 'Foreign Branch',
+          description: 'Best for companies expanding into Saudi Arabia without creating a separate legal entity.',
+          capitalRequirement: 'No minimum capital required, but parent company must provide financial guarantees.',
+          governmentFees: {
+            saudiGM: 'SAR 17,065',
+            nonSaudiGM: 'SAR 29,555',
+          },
+          timeline: {
+            saudiGM: '10 days – 4 weeks',
+            nonSaudiGM: '1 – 2 months',
+          }
+        };
+      default:
+        return {
+          type: 'Limited Liability Company (LLC)',
+          description: 'Best for most foreign investors, allowing 100% ownership with a MISA license.',
+          capitalRequirement: 'No fixed minimum (varies by industry).',
+          governmentFees: {
+            saudiGM: 'SAR 17,065',
+            nonSaudiGM: 'SAR 29,555',
+          },
+          timeline: {
+            saudiGM: '10 days – 4 weeks',
+            nonSaudiGM: '1 – 2 months',
+          }
+        };
     }
-    
-    setAnswers(newAnswers);
   };
   
-  const isStepComplete = () => {
-    const currentQuestions = currentSection.questions;
-    return currentQuestions.every(question => 
-      answers.some(answer => answer.questionId === question.id)
-    );
-  };
-  
-  const resetQuiz = () => {
-    setAnswers([]);
-    setCurrentStepIndex(0);
-    setResultReady(false);
-    setResultType(null);
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 pt-20">
-        <div className="container-wide py-12">
-          {!resultReady ? (
-            <>
-              {/* Quiz Header */}
-              <div className="max-w-3xl mx-auto mb-10">
-                <h1 className="heading-md mb-4">
-                  Take the Quiz: Find the Right Legal Entity in Saudi Arabia
-                </h1>
-                <p className="text-neutral-600">
-                  Answer the following questions to discover the best legal structure for your business in Saudi Arabia, 
-                  along with estimated costs and setup timelines.
+      <main className="flex-1 pt-24 pb-20">
+        <div className="container-wide">
+          {!showResults ? (
+            <div className="max-w-3xl mx-auto">
+              <div className="mb-8 text-center">
+                <h1 className="heading-md mb-4">Find the Right Legal Entity in Saudi Arabia</h1>
+                <p className="text-lg text-neutral-600">
+                  Answer the following questions to discover the best legal structure for your business in Saudi Arabia, along with estimated costs and setup timelines.
                 </p>
               </div>
               
-              {/* Progress Bar */}
-              <div className="max-w-3xl mx-auto mb-8">
+              <div className="mb-6">
                 <div className="bg-neutral-100 h-2 rounded-full overflow-hidden">
                   <div 
-                    className="bg-purple-300 h-full transition-all duration-300 ease-out"
-                    style={{ width: `${((currentStepIndex + 1) / totalSteps) * 100}%` }}
+                    className="bg-purple-300 h-2 rounded-full transition-all duration-300" 
+                    style={{ width: `${((currentSectionIndex + 1) / quizData.length) * 100}%` }}
                   ></div>
                 </div>
-                <div className="mt-2 text-sm text-neutral-500 text-right">
-                  Step {currentStepIndex + 1} of {totalSteps}
+                <div className="text-sm text-neutral-500 mt-2">
+                  Section {currentSectionIndex + 1} of {quizData.length}
                 </div>
               </div>
               
-              {/* Quiz Step */}
-              <div className="max-w-3xl mx-auto">
-                <QuizSection
-                  title={currentSection.title}
-                  questions={currentSection.questions}
-                  answers={answers}
+              <div className="bg-white p-8 rounded-xl border border-neutral-200 shadow-sm">
+                <QuizSection 
+                  section={quizData[currentSectionIndex]} 
+                  selectedAnswers={selectedAnswers}
                   onAnswerSelect={handleAnswerSelect}
                 />
                 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between mt-12">
-                  <Button
-                    variant="outline"
+                <div className="flex justify-between mt-8 pt-6 border-t border-neutral-200">
+                  <button
                     onClick={handlePrevious}
-                    disabled={isFirstStep}
-                    className="flex items-center"
+                    disabled={currentSectionIndex === 0}
+                    className={`flex items-center ${currentSectionIndex === 0 ? 'text-neutral-400 cursor-not-allowed' : 'text-purple-500 hover:text-purple-600'}`}
                   >
                     <ArrowLeft size={16} className="mr-2" />
                     Previous
-                  </Button>
+                  </button>
                   
-                  <Button
+                  <button
                     onClick={handleNext}
-                    disabled={!isStepComplete()}
-                    className="bg-purple-300 hover:bg-purple-400 text-white flex items-center"
+                    disabled={!isCurrentSectionComplete()}
+                    className={`flex items-center px-6 py-2 rounded-lg ${isCurrentSectionComplete() ? 'bg-purple-300 text-white hover:bg-purple-400' : 'bg-neutral-200 text-neutral-400 cursor-not-allowed'}`}
                   >
-                    {isLastStep ? 'See Results' : 'Next'}
+                    {currentSectionIndex < quizData.length - 1 ? 'Next' : 'See Results'}
                     <ArrowRight size={16} className="ml-2" />
-                  </Button>
+                  </button>
                 </div>
               </div>
-            </>
+            </div>
           ) : (
-            /* Quiz Results */
-            <div className="max-w-3xl mx-auto">
-              <Button
-                variant="outline"
-                onClick={resetQuiz}
-                className="mb-8 flex items-center"
-              >
-                <ArrowLeft size={16} className="mr-2" />
-                Take the Quiz Again
-              </Button>
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-12 text-center">
+                <h1 className="heading-md mb-4">Your Results: Best Legal Entity, Cost & Timeline</h1>
+                <p className="text-lg text-neutral-600">
+                  Based on your answers, we recommend the following legal structure for your business in Saudi Arabia.
+                </p>
+              </div>
               
-              <h1 className="heading-md mb-6">
-                Your Results: Best Legal Entity, Cost & Timeline
-              </h1>
+              <QuizResultCard result={getRecommendedEntityType()} />
               
-              {resultType && (
-                <div className="mb-10">
-                  <QuizResultCard
-                    result={quizResults[resultType]}
-                    gmType={gmType}
-                  />
+              <div className="mt-12 text-center">
+                <h2 className="text-2xl font-bold mb-6">What's Next?</h2>
+                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                  <Link 
+                    to="/services/self-guided-setup" 
+                    className="button-primary inline-flex items-center justify-center"
+                  >
+                    Start My Company Setup
+                    <ArrowRight size={18} className="ml-2" />
+                  </Link>
+                  
+                  <Link 
+                    to="/" 
+                    className="button-secondary inline-flex items-center justify-center"
+                  >
+                    Explore More Options
+                  </Link>
                 </div>
-              )}
-              
-              {/* Summary Table */}
-              <h2 className="text-xl font-bold mb-4">
-                Summary of Costs & Timelines Across Different Scenarios
-              </h2>
-              
-              <div className="overflow-x-auto mb-8">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="bg-neutral-100">
-                      <th className="border border-neutral-200 p-3 text-left">Scenario</th>
-                      <th className="border border-neutral-200 p-3 text-left">Fixed Fees (SAR 17,065)</th>
-                      <th className="border border-neutral-200 p-3 text-left">GM Fees (if Non-Saudi) (SAR 12,490)</th>
-                      <th className="border border-neutral-200 p-3 text-left">Total Cost (SAR)</th>
-                      <th className="border border-neutral-200 p-3 text-left">Timeline</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border border-neutral-200 p-3">Saudi GM</td>
-                      <td className="border border-neutral-200 p-3">✅ Included</td>
-                      <td className="border border-neutral-200 p-3">❌ Not Applicable</td>
-                      <td className="border border-neutral-200 p-3">17,065</td>
-                      <td className="border border-neutral-200 p-3">10 days – 4 weeks</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-neutral-200 p-3">Non-Saudi GM</td>
-                      <td className="border border-neutral-200 p-3">✅ Included</td>
-                      <td className="border border-neutral-200 p-3">✅ +12,490</td>
-                      <td className="border border-neutral-200 p-3">29,555</td>
-                      <td className="border border-neutral-200 p-3">1 – 2 months</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              
-              {/* What's Next */}
-              <div className="bg-neutral-50 p-6 rounded-lg border border-neutral-200 mb-8">
-                <h3 className="text-lg font-bold mb-3">What's Next?</h3>
-                <ul className="space-y-2 mb-4">
-                  <li className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-purple-500 mr-2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    Need help with company registration?
-                  </li>
-                  <li className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-purple-500 mr-2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    Want a side-by-side comparison of your options?
-                  </li>
-                  <li className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-purple-500 mr-2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    Looking for regulatory guidance?
-                  </li>
-                </ul>
-                <p className="font-medium">Let's discuss your business setup in Saudi Arabia! 🚀</p>
-              </div>
-              
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link 
-                  to="/services/self-guided-setup" 
-                  className="button-primary flex-1 text-center"
-                >
-                  Start Self-Guided Setup
-                </Link>
-                <Link 
-                  to="/services/agency-assisted-setup" 
-                  className="button-secondary flex-1 text-center"
-                >
-                  Explore Agency-Assisted Setup
-                </Link>
               </div>
             </div>
           )}
