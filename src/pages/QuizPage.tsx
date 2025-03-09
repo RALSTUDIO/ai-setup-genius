@@ -53,6 +53,11 @@ const QuizPage = () => {
       if (answerId.startsWith('D')) answerCounts.D++;
     });
     
+    // Check if this is a regional headquarters case (from q3)
+    if (selectedAnswers['q3'] === 'C3') {
+      return 'E'; // Regional Headquarters
+    }
+    
     // Find the most selected answer type
     let mostSelectedType = 'B'; // Default to LLC
     let maxCount = 0;
@@ -118,6 +123,20 @@ const QuizPage = () => {
           type: 'Foreign Branch',
           description: 'Best for companies expanding into Saudi Arabia without creating a separate legal entity.',
           capitalRequirement: 'No minimum capital required, but parent company must provide financial guarantees.',
+          governmentFees: {
+            saudiGM: 'SAR 17,065',
+            nonSaudiGM: 'SAR 29,555',
+          },
+          timeline: {
+            saudiGM: '10 days – 4 weeks',
+            nonSaudiGM: '1 – 2 months',
+          }
+        };
+      case 'E':
+        return {
+          type: 'Regional Headquarters (RHQ) Entity',
+          description: 'Best for multinational corporations managing operations in the Middle East.',
+          capitalRequirement: 'No minimum capital, but financial stability required.',
           governmentFees: {
             saudiGM: 'SAR 17,065',
             nonSaudiGM: 'SAR 29,555',
@@ -214,10 +233,10 @@ const QuizPage = () => {
                 <h2 className="text-2xl font-bold mb-6">What's Next?</h2>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                   <Link 
-                    to="/services/self-guided-setup" 
+                    to="/services" 
                     className="button-primary inline-flex items-center justify-center"
                   >
-                    Start My Company Setup
+                    Explore Our Services
                     <ArrowRight size={18} className="ml-2" />
                   </Link>
                   
@@ -225,7 +244,7 @@ const QuizPage = () => {
                     to="/" 
                     className="button-secondary inline-flex items-center justify-center"
                   >
-                    Explore More Options
+                    Back to Home
                   </Link>
                 </div>
               </div>

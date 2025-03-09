@@ -22,7 +22,7 @@ interface QuizResultCardProps {
 
 const QuizResultCard: React.FC<QuizResultCardProps> = ({ result }) => {
   return (
-    <div className="bg-white p-8 rounded-xl border border-neutral-200 shadow-md">
+    <div className="bg-white p-8 rounded-xl border border-neutral-200 shadow-md animate-fade-in">
       <div className="flex items-center mb-6">
         <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
           <CheckCircle2 size={24} className="text-purple-500" />
@@ -35,12 +35,12 @@ const QuizResultCard: React.FC<QuizResultCardProps> = ({ result }) => {
       </div>
       
       <div className="space-y-6">
-        <div>
+        <div className="animate-slide-up" style={{ animationDelay: '100ms' }}>
           <h4 className="text-lg font-semibold mb-2">Capital Requirement</h4>
           <p className="text-neutral-700">{result.capitalRequirement}</p>
         </div>
         
-        <div>
+        <div className="animate-slide-up" style={{ animationDelay: '200ms' }}>
           <h4 className="text-lg font-semibold mb-2">Government Fees</h4>
           <div className="space-y-2">
             <div className="flex items-start">
@@ -54,7 +54,7 @@ const QuizResultCard: React.FC<QuizResultCardProps> = ({ result }) => {
           </div>
         </div>
         
-        <div>
+        <div className="animate-slide-up" style={{ animationDelay: '300ms' }}>
           <h4 className="text-lg font-semibold mb-2">Timeline</h4>
           <div className="space-y-2">
             <div className="flex items-start">
@@ -69,9 +69,9 @@ const QuizResultCard: React.FC<QuizResultCardProps> = ({ result }) => {
         </div>
       </div>
       
-      <div className="mt-8 pt-6 border-t border-neutral-200">
+      <div className="mt-8 pt-6 border-t border-neutral-200 animate-slide-up" style={{ animationDelay: '400ms' }}>
         <h4 className="text-lg font-semibold mb-4">Summary of Costs & Timelines</h4>
-        <div className="bg-neutral-50 p-4 rounded-lg">
+        <div className="bg-neutral-50 p-4 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left">
               <tr>
