@@ -27,7 +27,7 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.headline': 'Know Your Cost, Timeline & Legal Structure!',
     'hero.subtitle': 'Thinking about starting a business in Saudi Arabia? Get an instant cost estimate, a step-by-step timeline, and the best legal structure for your company—all in just 30 seconds!',
     'hero.tagline': '🚀 No consultants. No waiting. Just instant answers.',
-    'hero.cta': 'Take the Quiz Now – It's Free!',
+    'hero.cta': 'Take the Quiz Now – It\'s Free!',
     
     // Footer
     'footer.description': 'Simplifying business setup in Saudi Arabia with AI-powered solutions.',
